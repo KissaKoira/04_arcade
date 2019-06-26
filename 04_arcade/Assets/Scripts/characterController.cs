@@ -1,9 +1,11 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class characterController : MonoBehaviour
 {
+    public GameObject cam;
     public GameObject player;
     public GameObject bulletPrefab;
     public GameObject gunSmokePrefab;
@@ -17,13 +19,22 @@ public class characterController : MonoBehaviour
     bool jumping = false;
     public string orientation = "Right";
     float speed = 0;
-    float constantSpeed = -3f;
+    float constantSpeed;
+
+    public float hitPoints = 100f;
+    public int numOfHearts;
+    public Image[] hearts;
+    public Sprite fullHeart;
+    public Sprite emptyHeart;
+    public Sprite halfHeart;
 
     bool shotCd = false;
     float shotCounter = 0;
+    GameObject gunSmoke;
 
     private void Start()
     {
+        constantSpeed = cam.GetComponent<cameraController>().constantSpeed;
     }
 
     private void Move(string str)
@@ -50,8 +61,11 @@ public class characterController : MonoBehaviour
 
     private void Jump()
     {
-        animator.SetBool("Jumping", true);
-        jumping = true;
+        if (animator.GetBool("Jumping") == false)
+        {
+            animator.SetBool("Jumping", true);
+            jumping = true;
+        }
     }
 
     private void Shoot()
@@ -73,7 +87,7 @@ public class characterController : MonoBehaviour
 
         direction.Normalize();
 
-        Instantiate(gunSmokePrefab, gunPoint.transform.position, Quaternion.identity);
+        gunSmoke = Instantiate(gunSmokePrefab, gunPoint.transform.position, Quaternion.identity);
 
         GameObject bullet = (GameObject)Instantiate(bulletPrefab, myPos, Quaternion.identity);
         bullet.GetComponent<Rigidbody2D>().velocity = direction * 20f;
@@ -102,6 +116,31 @@ public class characterController : MonoBehaviour
         if(shotCounter <= 0)
         {
             shotCd = false;
+            Destroy(gunSmoke);
+        }
+
+        if (hitPoints > numOfHearts * 20)
+        {
+            hitPoints = numOfHearts * 20;
+        }
+
+        for (int i = 0; i < hearts.Length; i++)
+        {
+            if (i < (hitPoints / 20))
+            {
+                if (hitPoints % 20 != 0 && (hitPoints + 10) / 20 == (i + 1))
+                {
+                    hearts[i].sprite = halfHeart;
+                }
+                else
+                {
+                    hearts[i].sprite = fullHeart;
+                }
+            }
+            else
+            {
+                hearts[i].sprite = emptyHeart;
+            }
         }
     }
 
@@ -164,6 +203,14 @@ public class characterController : MonoBehaviour
         if (Mathf.Abs(GetComponent<Rigidbody2D>().velocity.y) < 0.1)
         {
             animator.SetBool("Jumping", false);
+        }
+    }
+
+    private void OnCollisionEnter2D(Collision2D collision)
+    {
+        if(collision.gameObject.tag == "Enemy" || collision.gameObject.tag == "enemyBullet")
+        {
+            hitPoints -= 10;
         }
     }
 }
