@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
+using UnityEngine.SceneManagement;
 
 public class characterController : MonoBehaviour
 {
@@ -92,6 +93,11 @@ public class characterController : MonoBehaviour
         GameObject bullet = (GameObject)Instantiate(bulletPrefab, myPos, Quaternion.identity);
         bullet.GetComponent<Rigidbody2D>().velocity = direction * 20f;
 
+        if (orientation == "Left")
+        {
+            bullet.transform.Rotate(0, 180f, 0);
+        }
+
         shotCd = true;
         shotCounter = 0.5f;
     }
@@ -141,6 +147,12 @@ public class characterController : MonoBehaviour
             {
                 hearts[i].sprite = emptyHeart;
             }
+        }
+
+        if(hitPoints <= 0)
+        {
+            Destroy(gameObject);
+            SceneManager.LoadScene("Ending");
         }
     }
 
@@ -200,7 +212,7 @@ public class characterController : MonoBehaviour
             }
         }
 
-        if (Mathf.Abs(GetComponent<Rigidbody2D>().velocity.y) < 0.1)
+        if (Mathf.Abs(GetComponent<Rigidbody2D>().velocity.y) < 0.01)
         {
             animator.SetBool("Jumping", false);
         }

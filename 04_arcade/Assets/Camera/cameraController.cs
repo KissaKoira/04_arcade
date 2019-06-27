@@ -5,9 +5,11 @@ using UnityEngine;
 public class cameraController : MonoBehaviour
 {
     public GameObject enemyPrefab;
+    public GameObject enemyPrefab2;
     public GameObject platformPrefab;
     public GameObject platformPrefab2;
 
+    GameObject nextEnemy;
     GameObject nextPlatform;
 
     public float constantSpeed = -4f;
@@ -19,11 +21,15 @@ public class cameraController : MonoBehaviour
 
     float enemyCounter = 0;
     float random2;
+    float enemyRoll;
 
     private void Start()
     {
-        random = (Random.value * 5) + 1;
-        random2 = (Random.value * 5) + 1;
+        random = (Random.value * 3) + 2;
+        random2 = (Random.value * 3) + 2;
+        platformCounter = random;
+        enemyCounter = random2;
+        enemyRoll = Random.value;
         platformRoll = Random.value;
         randomHeight = (Random.value * 2.5f);
     }
@@ -55,10 +61,20 @@ public class cameraController : MonoBehaviour
 
         if (enemyCounter >= random2)
         {
+            if (enemyRoll <= 0.5f)
+            {
+                nextEnemy = enemyPrefab;
+            }
+            else
+            {
+                nextEnemy = enemyPrefab2;
+            }
+
             createEnemy();
 
             enemyCounter = 0;
             random2 = (Random.value * 5) + 1;
+            enemyRoll = Random.value;
         }
     }
 
@@ -70,7 +86,15 @@ public class cameraController : MonoBehaviour
 
     void createEnemy()
     {
-        GameObject enemy = Instantiate(enemyPrefab);
-        enemy.GetComponent<Rigidbody2D>().velocity = new Vector3(constantSpeed, 0, 0);
+        GameObject enemy = Instantiate(nextEnemy);
+
+        if(nextEnemy == enemyPrefab)
+        {
+            enemy.GetComponent<Rigidbody2D>().velocity = new Vector3(constantSpeed, 0, 0);
+        }
+        else
+        {
+            enemy.GetComponent<Rigidbody2D>().velocity = new Vector3(constantSpeed - 2f, 0, 0);
+        }
     }
 }

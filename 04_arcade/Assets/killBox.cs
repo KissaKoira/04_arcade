@@ -6,6 +6,9 @@ public class killBox : MonoBehaviour
 {
     private void OnTriggerEnter2D(Collider2D collision)
     {
-        Destroy(collision.gameObject);
+        if(collision.gameObject.tag != "Ground")
+        {
+            Destroy(collision.gameObject);
+        }
     }
 }
